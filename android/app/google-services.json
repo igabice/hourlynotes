@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "889940338135",
+    "project_id": "hourlynotes",
+    "storage_bucket": "hourlynotes.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:889940338135:android:0153f1fb7322ba69efd792",
+        "android_client_info": {
+          "package_name": "com.example.myapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDfiE-HFceAPVOBT2vEqkEnCQG6RpWyo8A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
