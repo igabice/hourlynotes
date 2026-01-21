@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/presentation/widgets/goal_card.dart';
-import 'package:myapp/presentation/widgets/settings_item.dart';
+import 'package:hourlynotes/presentation/widgets/goal_card.dart';
+import 'package:hourlynotes/presentation/widgets/settings_item.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});

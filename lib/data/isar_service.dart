@@ -1,7 +1,7 @@
 /*
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:myapp/domain/note.dart';
+import 'package:hourlynotes/domain/note.dart';
 
 class IsarService {
   late Future<Isar> db;

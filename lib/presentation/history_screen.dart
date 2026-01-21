@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/domain/models/activity_models.dart';
-import 'package:myapp/presentation/widgets/search_bar.dart' as custom;
-import 'package:myapp/presentation/widgets/toggle_buttons.dart' as custom;
-import 'package:myapp/presentation/widgets/filter_chip.dart';
-import 'package:myapp/presentation/widgets/date_separator.dart';
-import 'package:myapp/presentation/widgets/activity_card.dart';
+import 'package:hourlynotes/domain/models/activity_models.dart';
+import 'package:hourlynotes/presentation/widgets/search_bar.dart' as custom;
+import 'package:hourlynotes/presentation/widgets/toggle_buttons.dart' as custom;
+import 'package:hourlynotes/presentation/widgets/filter_chip.dart';
+import 'package:hourlynotes/presentation/widgets/date_separator.dart';
+import 'package:hourlynotes/presentation/widgets/activity_card.dart';
 import 'package:intl/intl.dart';
 
 class HistoryScreen extends StatefulWidget {

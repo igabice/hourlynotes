@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/domain/models/workout_models.dart';
+import 'package:hourlynotes/domain/models/workout_models.dart';
 
 /// Reusable workout card for displaying workout/content items
 class WorkoutCard extends StatelessWidget {

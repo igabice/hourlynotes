@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:myapp/data/hive_service.dart';
+import 'package:hourlynotes/data/hive_service.dart';
 import 'package:provider/provider.dart';
 
-import 'package:myapp/presentation/theme_provider.dart';
-import 'package:myapp/presentation/settings_provider.dart';
-import 'package:myapp/presentation/themes.dart';
-import 'package:myapp/presentation/home_screen.dart';
+import 'package:hourlynotes/presentation/theme_provider.dart';
+import 'package:hourlynotes/presentation/settings_provider.dart';
+import 'package:hourlynotes/presentation/themes.dart';
+import 'package:hourlynotes/presentation/login_screen.dart';
+import 'package:hourlynotes/presentation/home_screen.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -38,7 +39,7 @@ class MyApp extends StatelessWidget {
           theme: lightTheme,
           darkTheme: darkTheme,
           themeMode: themeProvider.themeMode,
-          home: const HomeScreen(),
+          home: const LoginScreen(),
           debugShowCheckedModeBanner: false,
         );
       },

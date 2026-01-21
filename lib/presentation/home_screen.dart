@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import 'package:intl/intl.dart';
-import 'package:myapp/presentation/add_note_screen.dart';
-import 'package:myapp/presentation/history_screen.dart';
-import 'package:myapp/presentation/profile_screen.dart';
-import 'package:myapp/presentation/feeds_screen.dart';
-import 'package:myapp/presentation/themes.dart';
-import 'package:myapp/presentation/widgets/workout_list_item.dart';
-import 'package:myapp/presentation/widgets/achievement_banner.dart';
-import 'package:myapp/presentation/widgets/section_header.dart';
+import 'package:hourlynotes/presentation/add_note_screen.dart';
+import 'package:hourlynotes/presentation/history_screen.dart';
+import 'package:hourlynotes/presentation/profile_screen.dart';
+import 'package:hourlynotes/presentation/feeds_screen.dart';
+import 'package:hourlynotes/presentation/themes.dart';
+import 'package:hourlynotes/presentation/widgets/workout_list_item.dart';
+import 'package:hourlynotes/presentation/widgets/achievement_banner.dart';
+import 'package:hourlynotes/presentation/widgets/section_header.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

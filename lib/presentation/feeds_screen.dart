@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/domain/models/workout_models.dart';
-import 'package:myapp/presentation/widgets/search_bar.dart' as custom;
-import 'package:myapp/presentation/widgets/section_header.dart';
-import 'package:myapp/presentation/widgets/workout_card.dart';
+import 'package:hourlynotes/domain/models/workout_models.dart';
+import 'package:hourlynotes/presentation/widgets/search_bar.dart' as custom;
+import 'package:hourlynotes/presentation/widgets/section_header.dart';
+import 'package:hourlynotes/presentation/widgets/workout_card.dart';
 
 class FeedsScreen extends StatefulWidget {
   const FeedsScreen({super.key});

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/presentation/widgets/focus_mode_card.dart';
-import 'package:myapp/presentation/widgets/notification_card.dart';
-import 'package:myapp/presentation/widgets/schedule_card.dart';
-import 'package:myapp/presentation/widgets/section_header.dart';
+import 'package:hourlynotes/presentation/widgets/focus_mode_card.dart';
+import 'package:hourlynotes/presentation/widgets/notification_card.dart';
+import 'package:hourlynotes/presentation/widgets/schedule_card.dart';
+import 'package:hourlynotes/presentation/widgets/section_header.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});

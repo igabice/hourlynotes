@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/domain/models/activity_models.dart';
-import 'package:myapp/presentation/note_detail_screen.dart';
+import 'package:hourlynotes/domain/models/activity_models.dart';
+import 'package:hourlynotes/presentation/note_detail_screen.dart';
 
 /// Activity card widget for displaying activity entries
 class ActivityCard extends StatelessWidget {

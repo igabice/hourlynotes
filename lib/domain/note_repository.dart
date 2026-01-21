@@ -1,6 +1,6 @@
 /*
-import 'package:myapp/data/isar_service.dart';
-import 'package:myapp/domain/note.dart';
+import 'package:hourlynotes/data/isar_service.dart';
+import 'package:hourlynotes/domain/note.dart';
 
 class NoteRepository {
   final IsarService _isarService;

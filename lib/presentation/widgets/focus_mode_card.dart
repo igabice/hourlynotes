@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:myapp/presentation/settings_provider.dart';
+import 'package:hourlynotes/presentation/settings_provider.dart';
 
 class FocusModeCard extends StatelessWidget {
   const FocusModeCard({super.key});

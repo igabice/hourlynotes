@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/domain/models/activity_models.dart';
-import 'package:myapp/presentation/widgets/tag_badge.dart';
-import 'package:myapp/presentation/widgets/info_chip.dart';
+import 'package:hourlynotes/domain/models/activity_models.dart';
+import 'package:hourlynotes/presentation/widgets/tag_badge.dart';
+import 'package:hourlynotes/presentation/widgets/info_chip.dart';
 import 'package:intl/intl.dart';
 
 class NoteDetailScreen extends StatelessWidget {
