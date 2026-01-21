@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:myapp/data/hive_service.dart';
 import 'package:provider/provider.dart';
 
 import 'package:myapp/presentation/theme_provider.dart';
@@ -13,6 +14,7 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await HiveService.instance.init();
   runApp(
     MultiProvider(
       providers: [

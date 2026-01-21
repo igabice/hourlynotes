@@ -24,18 +24,21 @@ dependencies:
   googleapis_auth: ^1.4.1
   
   # Local Notifications
-  flutter_local_notifications: ^16.3.2
+  flutter_local_notifications: ^17.0.0
 
-  # Database
-  # isar: ^3.1.0+1
-  # isar_flutter_libs: ^3.1.0+1
-  path_provider: ^2.1.1
+   # Database
+   # isar: ^3.1.0+1
+   # isar_flutter_libs: ^3.1.0+1
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  path_provider: ^2.1.5
 
   # UI
   google_fonts: ^6.1.0
   image_picker: ^1.0.4
   intl: ^0.20.2
   cupertino_icons: ^1.0.8
+  logger: ^2.6.2
 
 dev_dependencies:
   flutter_test:

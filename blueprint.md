@@ -11,6 +11,7 @@ Hourly Note is a simple yet powerful note-taking application designed for captur
 *   **Note Deletion:** Easily remove notes you no longer need.
 *   **Local Storage:** Notes are stored locally on your device using the Isar database.
 *   **Themeing:** The app supports both light and dark themes.
+*   **Settings Management:** App settings such as `firstRun`, `activeTheme`, and `fcmToken` are managed using Hive.
 
 ## Design
 
