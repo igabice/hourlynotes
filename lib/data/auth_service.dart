@@ -1,4 +1,6 @@
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:hourlynotes/data/hive_service.dart';
+import 'package:hourlynotes/domain/models/user_models.dart';
 
 import 'google_drive_service.dart'; // ← Import your previous service
 
@@ -6,6 +8,7 @@ import 'google_drive_service.dart'; // ← Import your previous service
 /// Uses DriveBackupService under the hood for actual sign-in/out.
 class AuthService {
   final DriveBackupService _driveService;
+  final HiveService _hiveService = HiveService.instance;
 
   AuthService({DriveBackupService? driveService})
       : _driveService = driveService ?? DriveBackupService();
@@ -26,6 +29,9 @@ class AuthService {
   Future<GoogleSignInAccount> signIn() async {
     try {
       final account = await _driveService.signIn();
+      final userBox = await _hiveService.getBox(HiveService.userSettingsBox);
+      var user = User(email: account.email, displayName: account.displayName!, photoUrl: account.photoUrl!);
+      await userBox.put(USER_KEY, user.toJson());
       return account;
     } catch (e) {
       // You can re-throw with more context or handle specific errors

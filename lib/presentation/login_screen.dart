@@ -2,8 +2,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
 
 import 'package:hourlynotes/presentation/home_screen.dart';
+
+import '../data/auth_service.dart';
+import '../data/google_drive_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -14,64 +18,59 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool _isSigningIn = false;
+  final _drive = DriveBackupService();
+  final _auth = AuthService();
+  bool _isSyncing = false;
+  int _restoredCount = 0;
 
-  Future<void> _signInWithGoogle() async {
-    setState(() => _isSigningIn = true);
-
-    try {
-      final GoogleSignIn signIn = GoogleSignIn.instance;
-
-      // Define the Drive scope we need
-      const List<String> driveScopes = [drive.DriveApi.driveAppdataScope];
-
-      // 1. INITIALIZE (Note: No 'scopes' parameter here anymore)
-      await signIn.initialize();
-
-      // 2. AUTHENTICATE (The "Who are you?" part)
-      final GoogleSignInAccount? googleUser = await signIn.authenticate();
-
-      if (googleUser == null) {
-        setState(() => _isSigningIn = false);
-        return;
-      }
-
-      // 3. AUTHORIZE (The "Can I use your Drive?" part)
-      // We get the accessToken from the authorizationClient
-      final GoogleSignInClientAuthorization authorization =
-      await googleUser.authorizationClient.authorizeScopes(driveScopes);
-
-      // 4. GET TOKENS FOR FIREBASE
-      final String? accessToken = authorization.accessToken;
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-      final String? idToken = googleAuth.idToken;
-
-      final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: accessToken,
-        idToken: idToken,
-      );
-
-      // 5. SIGN INTO FIREBASE
-      await FirebaseAuth.instance.signInWithCredential(credential);
-
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _isSigningIn = false);
-    }
-  }
 
 
   @override
+  void initState() {
+    super.initState();
+    onLogin();
+  }
+
+  Future<void> onLogin() async {
+    if(await _auth.isLoggedIn()) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Get.to(const HomeScreen());
+      });
+    }
+  }
+
+  Future<void> _syncFromDrive() async {
+    setState(() => _isSyncing = true);
+
+    try {
+      if (!await _auth.isLoggedIn()) {
+        var googleAcc = await _auth.signIn();
+      }
+
+      if(await _auth.isLoggedIn()) {
+        Get.to(HomeScreen());
+      }
+
+      final restored = await _drive.downloadAndRestoreNotes();
+      setState(() {
+        _restoredCount = restored.length;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Restored $_restoredCount notes from Drive')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Sync failed: $e')),
+      );
+    } finally {
+      setState(() => _isSyncing = false);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       body: Center(
         child: Padding(
@@ -88,7 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
               _isSigningIn
                   ? const CircularProgressIndicator()
                   : ElevatedButton.icon(
-                      onPressed: _signInWithGoogle,
+                      onPressed: _syncFromDrive,
                       icon: const FaIcon(FontAwesomeIcons.google),
                       label: const Text('Login with Google'),
                       style: ElevatedButton.styleFrom(

@@ -1,6 +1,8 @@
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 
+var USER_KEY = 'users';
+
 class HiveService {
   static const String userSettingsBox = 'user_settings';
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 const Color primaryColor = Color(0xFF00838F);
+const Color lightBackground = Color(0xFFF5F7FA);
 
 final ThemeData lightTheme = ThemeData(
   useMaterial3: true,

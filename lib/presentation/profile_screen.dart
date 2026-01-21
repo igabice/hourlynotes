@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hourlynotes/data/hive_service.dart';
 import 'package:hourlynotes/presentation/widgets/goal_card.dart';
 import 'package:hourlynotes/presentation/widgets/settings_item.dart';
 
@@ -11,6 +12,22 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   bool _notificationsEnabled = true;
+  String? _displayName;
+  String? _photoUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final userBox = await HiveService.instance.getBox(HiveService.userSettingsBox);
+    setState(() {
+      _displayName = userBox.get('displayName');
+      _photoUrl = userBox.get('photoUrl');
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

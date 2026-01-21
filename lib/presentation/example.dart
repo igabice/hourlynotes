@@ -10,20 +10,20 @@
 //   final _auth = AuthService();
 //   bool _isSyncing = false;
 //   int _restoredCount = 0;
-
+//
 //   Future<void> _syncFromDrive() async {
 //     setState(() => _isSyncing = true);
-
+//
 //     try {
 //       if (!await _auth.isLoggedIn()) {
 //         await _auth.signIn();
 //       }
-
+//
 //       final restored = await _drive.downloadAndRestoreNotes();
 //       setState(() {
 //         _restoredCount = restored.length;
 //       });
-
+//
 //       ScaffoldMessenger.of(context).showSnackBar(
 //         SnackBar(content: Text('Restored $_restoredCount notes from Drive')),
 //       );
