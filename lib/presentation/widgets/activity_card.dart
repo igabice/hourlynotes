@@ -149,32 +149,58 @@ class ActivityCard extends StatelessWidget {
                       ),
                     ),
                     // Image attachment (if any)
+                    // if (activity.imageUrl != null) ...[
+                    //   const SizedBox(height: 16),
+                    //   ClipRRect(
+                    //     borderRadius: BorderRadius.circular(12),
+                    //     child: Image.network(
+                    //       activity.imageUrl!,
+                    //       width: double.infinity,
+                    //       height: 120,
+                    //       fit: BoxFit.cover,
+                    //       errorBuilder: (context, error, stackTrace) {
+                    //         return Container(
+                    //           height: 120,
+                    //           decoration: BoxDecoration(
+                    //             color: const Color(0xFFE0E0E0),
+                    //             borderRadius: BorderRadius.circular(12),
+                    //           ),
+                    //           child: const Center(
+                    //             child: Icon(
+                    //               Icons.image_outlined,
+                    //               size: 40,
+                    //               color: Colors.grey,
+                    //             ),
+                    //           ),
+                    //         );
+                    //       },
+                    //     ),
+                    //   ),
+                    // ],
+
                     if (activity.imageUrl != null) ...[
                       const SizedBox(height: 16),
                       ClipRRect(
                         borderRadius: BorderRadius.circular(12),
-                        child: Image.network(
-                          activity.imageUrl!,
-                          width: double.infinity,
-                          height: 120,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              height: 120,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFE0E0E0),
-                                borderRadius: BorderRadius.circular(12),
+                        child: activity.imageUrl!.startsWith('http')
+                            ? Image.network(
+                                activity.imageUrl!,
+                                width: double.infinity,
+                                height: 120,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return _imagePlaceholder();
+                                },
+                              )
+                            : Image.file(
+                                File(activity.imageUrl!),
+                                width: double.infinity,
+                                height: 120,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return _imagePlaceholder();
+                                },
                               ),
-                              child: const Center(
-                                child: Icon(
-                                  Icons.image_outlined,
-                                  size: 40,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
                       ),
                     ],
                   ],
@@ -186,4 +212,21 @@ class ActivityCard extends StatelessWidget {
       ),
     );
   }
+
+  Widget _imagePlaceholder() {
+  return Container(
+    height: 120,
+    decoration: BoxDecoration(
+      color: const Color(0xFFE0E0E0),
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: const Center(
+      child: Icon(
+        Icons.image_outlined,
+        size: 40,
+        color: Colors.grey,
+      ),
+    ),
+  );
+}
 }

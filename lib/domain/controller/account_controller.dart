@@ -1,49 +1,95 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hourlynotes/data/auth_service.dart';
-import 'package:hourlynotes/data/hive_service.dart';
 
+import '../data/auth_service.dart';
+import '../data/hive_service.dart';
 import '../models/user_models.dart';
 
-
 class AccountController extends GetxController {
+  final AuthService _auth = AuthService();
+  final HiveService _db = HiveService.instance;
 
-  late AuthService _auth;
-  late HiveService _db;
+  // Reactive state
+  final Rx<User?> user = Rx<User?>(null);
+  final RxBool isLoading = false.obs;
+  final RxBool isFirstRun = true.obs;
 
+  // Form controllers & keys
+  final usernameKey = GlobalKey<FormState>();
+  final phoneKey = GlobalKey<FormState>();
 
-
-  RxBool isButtonLoading = false.obs;
-  RxBool isAppLinkLoading = false.obs;
-  final GlobalKey<FormState> usernameKey = GlobalKey<FormState>();
-  final GlobalKey<FormState> phoneKey = GlobalKey<FormState>();
-  var firstNameController = TextEditingController(text: '').obs;
-  var emailController = TextEditingController(text: '').obs;
-
-
-
-  var user = User().obs;
-
-  int onboardCount = 0;
+  final firstNameController = TextEditingController();
+  final emailController = TextEditingController();
 
   @override
   void onInit() {
-    _auth = AuthService();
     super.onInit();
+    _loadInitialData();
   }
 
+  Future<void> _loadInitialData() async {
+    isLoading.value = true;
 
-  getUser() async {
+    // 1. Check first run
+    isFirstRun.value = await _db.isFirstAppRun();
 
-    final box = await _db.getBox<Map<dynamic, dynamic>>(HiveService.userSettingsBox);
-    final userCached = box.get(USER_KEY);
-    if(userCached != null) {
-      debugPrint(userCached.toString());
-      user.value = User.fromJson(userCached as Map<String, dynamic>);
+    // 2. Load cached user
+    await loadUserFromStorage();
+
+    isLoading.value = false;
+  }
+
+  Future<void> loadUserFromStorage() async {
+    final cachedUser = await _db.getUser();
+    if (cachedUser != null) {
+      user.value = cachedUser;
+      // Optional: fill controllers if needed for editing profile
+      firstNameController.text = cachedUser.displayName;
+      emailController.text = cachedUser.email;
+    } else {
+      user.value = null;
     }
   }
 
+  Future<void> saveUserToStorage() async {
+    if (user.value == null) return;
+    await _db.saveUser(user.value!);
+  }
 
+  /// Call this after successful login / signup
+  Future<void> setAndSaveUser(User newUser) async {
+    user.value = newUser;
+    await _db.saveUser(newUser);
 
+    // If this was first run → mark as opened
+    if (isFirstRun.value) {
+      await _db.markAppAsOpened();
+      isFirstRun.value = false;
+    }
+  }
 
+  Future<void> logout() async {
+    isLoading.value = true;
+
+    try {
+      // 1. Sign out from auth (firebase, etc.)
+      await _auth.signOut();
+
+      // 2. Clear local storage
+      await _db.logoutAndClear();
+
+      // 3. Reset state
+      user.value = null;
+      isFirstRun.value = await _db.isFirstAppRun(); // should be true again
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  @override
+  void onClose() {
+    firstNameController.dispose();
+    emailController.dispose();
+    super.onClose();
+  }
 }

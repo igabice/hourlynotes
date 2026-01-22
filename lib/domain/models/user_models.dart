@@ -3,6 +3,7 @@ class User {
   final String displayName;
   final String photoUrl;
   final String email;
+  final String? lastNoteEntryDate;
 
   User({
     this.displayName = '',

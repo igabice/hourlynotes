@@ -1,86 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
-class AddNoteScreen extends StatefulWidget {
+import 'package:domain/controller/add_note_controller.dart'; // adjust path
+
+class AddNoteScreen extends StatelessWidget {
   const AddNoteScreen({super.key});
 
   @override
-  State<AddNoteScreen> createState() => _AddNoteScreenState();
-}
-
-class _AddNoteScreenState extends State<AddNoteScreen> {
-  final TextEditingController _notesController = TextEditingController();
-  String? _selectedCategory;
-  late DateTime _startTime;
-  late DateTime _endTime;
-
-  final List<CategoryItem> _categories = [
-    CategoryItem(
-      id: 'work',
-      label: 'Work',
-      icon: Icons.work_rounded,
-      color: const Color(0xFF00838F),
-    ),
-    CategoryItem(
-      id: 'health',
-      label: 'Health',
-      icon: Icons.favorite_rounded,
-      color: const Color(0xFFE0E0E0),
-    ),
-    CategoryItem(
-      id: 'social',
-      label: 'Social',
-      icon: Icons.people_rounded,
-      color: const Color(0xFFE0E0E0),
-    ),
-    CategoryItem(
-      id: 'learn',
-      label: 'Learn',
-      icon: Icons.menu_book_rounded,
-      color: const Color(0xFFE0E0E0),
-    ),
-    CategoryItem(
-      id: 'leisure',
-      label: 'Leisure',
-      icon: Icons.beach_access_rounded,
-      color: const Color(0xFFE0E0E0),
-    ),
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    _initializeTimes();
-    _selectedCategory = 'work';
-  }
-
-  void _initializeTimes() {
-    final now = DateTime.now();
-    _startTime = DateTime(now.year, now.month, now.day, 10, 0);
-    _endTime = DateTime(now.year, now.month, now.day, 11, 0);
-  }
-
-  @override
-  void dispose() {
-    _notesController.dispose();
-    super.dispose();
-  }
-
-  void _saveActivity() {
-    // TODO: Save activity log
-    Navigator.pop(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Activity log saved successfully!'),
-        backgroundColor: Color(0xFF00838F),
-      ),
-    );
-  }
-
-  Duration get _sessionDuration => _endTime.difference(_startTime);
-
-  @override
   Widget build(BuildContext context) {
+    // Create controller (or use Get.find() if already put higher up)
+    final ctrl = Get.put(AddNoteController());
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
       body: SafeArea(
@@ -88,22 +20,26 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
           children: [
             _buildHeader(),
             Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _buildActiveHourSection(),
-                    const SizedBox(height: 30),
-                    _buildActivityNotesSection(),
-                    const SizedBox(height: 30),
-                    _buildTagCategorySection(),
-                    const SizedBox(height: 30),
-                  ],
+              child: Obx(
+                () => SingleChildScrollView(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _buildActiveHourSection(ctrl),
+                      const SizedBox(height: 30),
+                      _buildActivityNotesSection(ctrl),
+                      const SizedBox(height: 24),
+                      _buildImagePickerSection(ctrl),
+                      const SizedBox(height: 30),
+                      _buildTagCategorySection(ctrl),
+                      const SizedBox(height: 40),
+                    ],
+                  ),
                 ),
               ),
             ),
-            _buildSaveButton(),
+            _buildSaveButton(ctrl),
           ],
         ),
       ),
@@ -115,7 +51,6 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
         children: [
-          // Back button
           Container(
             width: 44,
             height: 44,
@@ -125,12 +60,11 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
             ),
             child: IconButton(
               icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Get.back(),
               color: const Color(0xFF1A1A1A),
             ),
           ),
           const Spacer(),
-          // Title
           Column(
             children: [
               Text(
@@ -154,7 +88,6 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
             ],
           ),
           const Spacer(),
-          // Menu button
           Container(
             width: 44,
             height: 44,
@@ -165,7 +98,7 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
             child: IconButton(
               icon: const Icon(Icons.more_horiz_rounded, size: 24),
               onPressed: () {
-                // TODO: Show menu options
+                // TODO: menu
               },
               color: const Color(0xFF1A1A1A),
             ),
@@ -175,12 +108,11 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
     );
   }
 
-  Widget _buildActiveHourSection() {
+  Widget _buildActiveHourSection(AddNoteController ctrl) {
     final timeFormat = DateFormat('HH:mm');
 
     return Column(
       children: [
-        // Active Hour Badge
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
@@ -209,12 +141,11 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
           ),
         ),
         const SizedBox(height: 20),
-        // Time Range
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              timeFormat.format(_startTime),
+              timeFormat.format(ctrl.startTime.value!),
               style: const TextStyle(
                 fontSize: 52,
                 fontWeight: FontWeight.bold,
@@ -234,7 +165,7 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
               ),
             ),
             Text(
-              timeFormat.format(_endTime),
+              timeFormat.format(ctrl.endTime.value!),
               style: const TextStyle(
                 fontSize: 52,
                 fontWeight: FontWeight.bold,
@@ -257,7 +188,7 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
     );
   }
 
-  Widget _buildActivityNotesSection() {
+  Widget _buildActivityNotesSection(AddNoteController ctrl) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -302,29 +233,31 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
           ),
           child: Column(
             children: [
-              TextField(
-                controller: _notesController,
-                maxLines: 8,
-                decoration: InputDecoration(
-                  hintText:
-                      'I am focusing on completing the UI prototypes for the new project...',
-                  hintStyle: TextStyle(
-                    color: const Color(0xFF00ACC1).withOpacity(0.4),
+              Obx(
+                () => TextField(
+                  onChanged: (value) => ctrl.noteText.value = value,
+                  maxLines: 8,
+                  decoration: InputDecoration(
+                    hintText:
+                        'I am focusing on completing the UI prototypes for the new project...',
+                    hintStyle: TextStyle(
+                      color: const Color(0xFF00ACC1).withOpacity(0.4),
+                      fontSize: 16,
+                      height: 1.5,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.all(20),
+                    filled: true,
+                    fillColor: Colors.white,
+                  ),
+                  style: const TextStyle(
                     fontSize: 16,
+                    color: Color(0xFF1A1A1A),
                     height: 1.5,
                   ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: const EdgeInsets.all(20),
-                  filled: true,
-                  fillColor: Colors.white,
-                ),
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Color(0xFF1A1A1A),
-                  height: 1.5,
                 ),
               ),
               Padding(
@@ -341,12 +274,14 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    Text(
-                      '${_sessionDuration.inMinutes}m in',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Color(0xFF00838F),
-                        fontWeight: FontWeight.w600,
+                    Obx(
+                      () => Text(
+                        '${ctrl.sessionDuration.inMinutes}m in',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Color(0xFF00838F),
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ],
@@ -359,7 +294,111 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
     );
   }
 
-  Widget _buildTagCategorySection() {
+  Widget _buildImagePickerSection(AddNoteController ctrl) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'ATTACH IMAGE (OPTIONAL)',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF1A1A1A),
+            letterSpacing: 0.5,
+          ),
+        ),
+        const SizedBox(height: 12),
+
+        Obx(
+          () => ctrl.selectedImage.value != null
+              ? Stack(
+                  alignment: Alignment.topRight,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: Image.file(
+                        ctrl.selectedImage.value!,
+                        height: 180,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: GestureDetector(
+                        onTap: ctrl.removeImage,
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: const BoxDecoration(
+                            color: Colors.black54,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.close_rounded,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              : const SizedBox.shrink(),
+        ),
+
+        const SizedBox(height: 16),
+
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: () => ctrl.pickImage(ImageSource.gallery),
+                icon: const Icon(Icons.photo_library_rounded,
+                    color: Color(0xFF00838F)),
+                label: const Text('Gallery'),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Color(0xFF00838F)),
+                  foregroundColor: const Color(0xFF00838F),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
+                ),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: () => ctrl.pickImage(ImageSource.camera),
+                icon: const Icon(Icons.camera_alt_rounded,
+                    color: Color(0xFF00838F)),
+                label: const Text('Camera'),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Color(0xFF00838F)),
+                  foregroundColor: const Color(0xFF00838F),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTagCategorySection(AddNoteController ctrl) {
+    final categories = [
+      _CategoryItem(id: 'work', label: 'Work', icon: Icons.work_rounded),
+      _CategoryItem(id: 'health', label: 'Health', icon: Icons.favorite_rounded),
+      _CategoryItem(id: 'social', label: 'Social', icon: Icons.people_rounded),
+      _CategoryItem(id: 'learn', label: 'Learn', icon: Icons.menu_book_rounded),
+      _CategoryItem(
+          id: 'leisure', label: 'Leisure', icon: Icons.beach_access_rounded),
+    ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -394,11 +433,56 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
-            children: _categories.map((category) {
-              final isSelected = _selectedCategory == category.id;
-              return Padding(
-                padding: const EdgeInsets.only(right: 16),
-                child: _buildCategoryButton(category, isSelected),
+            children: categories.map((cat) {
+              return Obx(
+                () {
+                  final isSelected = ctrl.selectedCategory.value == cat.id;
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 16),
+                    child: GestureDetector(
+                      onTap: () => ctrl.selectedCategory.value = cat.id,
+                      child: Column(
+                        children: [
+                          Container(
+                            width: 70,
+                            height: 70,
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? const Color(0xFF00838F)
+                                  : Colors.white,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.06),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Icon(
+                              cat.icon,
+                              size: 30,
+                              color: isSelected
+                                  ? Colors.white
+                                  : const Color(0xFF757575),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            cat.label,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: isSelected
+                                  ? const Color(0xFF00838F)
+                                  : const Color(0xFF757575),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               );
             }).toList(),
           ),
@@ -407,52 +491,7 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
     );
   }
 
-  Widget _buildCategoryButton(CategoryItem category, bool isSelected) {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedCategory = category.id;
-        });
-      },
-      child: Column(
-        children: [
-          Container(
-            width: 70,
-            height: 70,
-            decoration: BoxDecoration(
-              color: isSelected ? const Color(0xFF00838F) : Colors.white,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.06),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Icon(
-              category.icon,
-              size: 30,
-              color: isSelected ? Colors.white : const Color(0xFF757575),
-            ),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            category.label,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: isSelected
-                  ? const Color(0xFF00838F)
-                  : const Color(0xFF757575),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSaveButton() {
+  Widget _buildSaveButton(AddNoteController ctrl) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -471,7 +510,7 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
           width: double.infinity,
           height: 60,
           child: ElevatedButton(
-            onPressed: _saveActivity,
+            onPressed: ctrl.saveNote,
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF00838F),
               foregroundColor: Colors.white,
@@ -491,16 +530,14 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
   }
 }
 
-class CategoryItem {
+class _CategoryItem {
   final String id;
   final String label;
   final IconData icon;
-  final Color color;
 
-  CategoryItem({
+  _CategoryItem({
     required this.id,
     required this.label,
     required this.icon,
-    required this.color,
   });
 }

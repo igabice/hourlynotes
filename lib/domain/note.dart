@@ -19,19 +19,43 @@ class Note extends HiveObject {
   @HiveField(4)
   String? driveImageFileId;
 
+  @HiveField(5) // next available
+  DateTime lastModified;
+
   Note({
     required this.id,
     required this.text,
     required this.timestamp,
+    this.lastModified, // default to timestamp if null
     this.localImagePath,
     this.driveImageFileId,
-  });
+  }) : lastModified = lastModified ?? timestamp;
+
+  Note copyWith({
+    int? id,
+    String? text,
+    DateTime? timestamp,
+    DateTime? lastModified,
+    String? localImagePath,
+    String? driveImageFileId,
+  }) {
+    return Note(
+      id: id ?? this.id,
+      text: text ?? this.text,
+      timestamp: timestamp ?? this.timestamp,
+      lastModified: lastModified ?? this.lastModified,
+      localImagePath: localImagePath ?? this.localImagePath,
+      driveImageFileId: driveImageFileId ?? this.driveImageFileId,
+    );
+  }
+
 
   Map<String, dynamic> toJson() => {
         'id': id,
         'text': text,
         'timestamp': timestamp.toIso8601String(),
         'driveImageFileId': driveImageFileId,
+        'lastModified': lastModified.toIso8601String(),
       };
 
   factory Note.fromJson(Map<String, dynamic> json) {
@@ -40,6 +64,7 @@ class Note extends HiveObject {
       text: json['text'] as String,
       timestamp: DateTime.parse(json['timestamp'] as String),
       driveImageFileId: json['driveImageFileId'] as String?,
+      lastModified: DateTime.parse(json['lastModified'] as String),
     );
   }
 }
