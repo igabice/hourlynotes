@@ -1,17 +1,24 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:ui';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hourlynotes/data/google_drive_service.dart';
 import 'package:image_picker/image_picker.dart';
 
-import 'package:hourlynotes/data/controllers/note_controller.dart'; // adjust path
+import '../../presentation/widgets/flushbar.dart';
+import 'note_controller.dart'; // adjust path
 
 class AddNoteController extends GetxController {
   // ── Observable state ───────────────────────────────────────────────────────
   final noteText = ''.obs;
+  final isSyncing = false.obs;
   final selectedCategory = 'work'.obs;
   final selectedImage = Rxn<File>();
   final imageBytes = Rxn<Uint8List>();
+
+  final DriveBackupService _driveService = DriveBackupService();
 
   // Fixed times (can be made editable later)
   final startTime = Rxn<DateTime>();
@@ -81,7 +88,9 @@ class AddNoteController extends GetxController {
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
       );
+      removeImage();
     } catch (e) {
+      print(e.toString());
       Get.snackbar('Error', 'Failed to save note: $e',
           snackPosition: SnackPosition.BOTTOM);
     }

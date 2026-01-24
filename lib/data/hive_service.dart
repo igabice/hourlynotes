@@ -1,10 +1,12 @@
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 
-import '../models/user_models.dart'; // adjust path if needed
+import '../domain/note.dart';
+import '../domain/models/user_models.dart';
 
 class HiveService {
   static const String userSettingsBox = 'user_settings';
+  static const String user = 'user_settings';
 
   static const String _userKey = 'current_user';
   static const String _isFirstRunKey = 'is_first_run';
@@ -24,8 +26,10 @@ class HiveService {
     final appDocDir = await getApplicationDocumentsDirectory();
     await Hive.initFlutter(appDocDir.path);
 
-    // Register adapter if you haven't already
-    // (you'll need to generate it with build_runner)
+    // Register adapters
+    if (!Hive.isAdapterRegistered(0)) { // NoteAdapter's typeId is 0
+      Hive.registerAdapter(NoteAdapter());
+    }
     // Hive.registerAdapter(UserAdapter());
 
     _isInitialized = true;
@@ -63,8 +67,6 @@ class HiveService {
     final box = await getSettingsBox();
     await box.delete(_userKey);
   }
-
-  // ── First run flag ──────────────────────────────────────────────────────────
 
   Future<bool> isFirstAppRun() async {
     final box = await getSettingsBox();

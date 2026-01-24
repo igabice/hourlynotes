@@ -1,6 +1,6 @@
 import 'package:hive/hive.dart';
 
-// part 'note.g.dart'; // Run `flutter pub run build_runner build`
+part 'note.g.dart'; // Run `flutter pub run build_runner build`
 
 @HiveType(typeId: 0)
 class Note extends HiveObject {
@@ -22,13 +22,17 @@ class Note extends HiveObject {
   @HiveField(5) // next available
   DateTime lastModified;
 
+  @HiveField(5) // next available
+  String? category;
+
   Note({
     required this.id,
     required this.text,
     required this.timestamp,
-    this.lastModified, // default to timestamp if null
+    DateTime? lastModified,
     this.localImagePath,
     this.driveImageFileId,
+    this.category,
   }) : lastModified = lastModified ?? timestamp;
 
   Note copyWith({
@@ -38,6 +42,7 @@ class Note extends HiveObject {
     DateTime? lastModified,
     String? localImagePath,
     String? driveImageFileId,
+    String? category,
   }) {
     return Note(
       id: id ?? this.id,
@@ -46,6 +51,7 @@ class Note extends HiveObject {
       lastModified: lastModified ?? this.lastModified,
       localImagePath: localImagePath ?? this.localImagePath,
       driveImageFileId: driveImageFileId ?? this.driveImageFileId,
+      category: category ?? this.category,
     );
   }
 
@@ -56,15 +62,19 @@ class Note extends HiveObject {
         'timestamp': timestamp.toIso8601String(),
         'driveImageFileId': driveImageFileId,
         'lastModified': lastModified.toIso8601String(),
+        'category': category,
       };
 
   factory Note.fromJson(Map<String, dynamic> json) {
     return Note(
       id: json['id'] as int,
       text: json['text'] as String,
+      category: json['category'] as String,
       timestamp: DateTime.parse(json['timestamp'] as String),
       driveImageFileId: json['driveImageFileId'] as String?,
-      lastModified: DateTime.parse(json['lastModified'] as String),
+      lastModified: json['lastModified'] != null
+          ? DateTime.parse(json['lastModified'] as String)
+          : null,
     );
   }
 }

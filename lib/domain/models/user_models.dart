@@ -7,6 +7,7 @@ class User {
 
   User({
     this.displayName = '',
+    this.lastNoteEntryDate = '',
     this.photoUrl = '',
     this.email = '',
   });

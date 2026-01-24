@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hourlynotes/data/google_drive_service.dart';
 
-import '../data/auth_service.dart';
-import '../data/hive_service.dart';
+
+import '../../data/hive_service.dart';
+import '../../presentation/home_screen.dart';
 import '../models/user_models.dart';
 
 class AccountController extends GetxController {
-  final AuthService _auth = AuthService();
+  final DriveBackupService _driveService = DriveBackupService();
   final HiveService _db = HiveService.instance;
 
   // Reactive state
@@ -39,6 +41,17 @@ class AccountController extends GetxController {
     isLoading.value = false;
   }
 
+  Future<bool> isLoggedIn() async {
+    return await _driveService.isSignedIn();
+  }
+
+  /// Gets the currently signed-in Google account (null if not logged in).
+  Future<void> getCurrentUser() async {
+    var account = await _driveService.getCurrentUser();
+    var currentUser = User(email: account!.email, displayName: account.displayName!, photoUrl: account.photoUrl!);
+    user.value = currentUser;
+  }
+
   Future<void> loadUserFromStorage() async {
     final cachedUser = await _db.getUser();
     if (cachedUser != null) {
@@ -68,19 +81,37 @@ class AccountController extends GetxController {
     }
   }
 
+  Future<void> signIn() async {
+    try {
+      final account = await _driveService.signIn();
+      var loggedUser = User(
+        email: account.email,
+        displayName: account.displayName ?? account.email.split('@').first,
+        photoUrl: account.photoUrl ?? '',
+      );
+      user.value = loggedUser;
+
+      await _db.saveUser(loggedUser);
+
+      Get.to(()=> const HomeScreen());
+    } catch (e) {
+      throw Exception('Google Sign-In failed: $e');
+    }
+  }
+
   Future<void> logout() async {
     isLoading.value = true;
 
     try {
       // 1. Sign out from auth (firebase, etc.)
-      await _auth.signOut();
+      await _driveService.signOut();
 
       // 2. Clear local storage
       await _db.logoutAndClear();
 
       // 3. Reset state
       user.value = null;
-      isFirstRun.value = await _db.isFirstAppRun(); // should be true again
+      isFirstRun.value = await _db.isFirstAppRun();
     } finally {
       isLoading.value = false;
     }

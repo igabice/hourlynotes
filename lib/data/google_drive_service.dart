@@ -208,13 +208,7 @@ Future<String> saveNoteWithImage(Note note) async {
         newDriveImageId = uploadResult.file!.id;
 
         // Update note model with new Drive ID
-        final updatedNote = Note(
-          id: note.id,
-          text: note.text,
-          timestamp: note.timestamp,
-          localImagePath: note.localImagePath, // keep local path if you want
-          driveImageFileId: newDriveImageId,
-        );
+        final updatedNote = note.copyWith(driveImageFileId: newDriveImageId);
 
         // Re-encode JSON with the new image ID
         jsonContent = jsonEncode(updatedNote.toJson());
@@ -341,6 +335,7 @@ Future<String> saveNoteWithImageFromBytes(Note note, Uint8List? imageBytes) asyn
       timestamp: note.timestamp,
       localImagePath: tempImagePath,
       driveImageFileId: note.driveImageFileId,
+      lastModified: null,
     );
 
     try {
@@ -401,7 +396,7 @@ Future<List<Note>> downloadAndRestoreNotes() async {
               text: note.text,
               timestamp: note.timestamp,
               localImagePath: localImagePath,
-              driveImageFileId: note.driveImageFileId,
+              driveImageFileId: note.driveImageFileId, lastModified: null,
             );
           } catch (imgErr) {
             print('Failed to download image for note ${note.id}: $imgErr');

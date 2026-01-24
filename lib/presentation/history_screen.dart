@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-import 'package:hourlynotes/data/controllers/note_controller.dart'; // adjust path
 import 'package:hourlynotes/domain/note.dart';
 import 'package:hourlynotes/domain/models/activity_models.dart';
 import 'package:hourlynotes/presentation/note_detail_screen.dart';
@@ -14,6 +13,8 @@ import 'package:hourlynotes/presentation/widgets/toggle_buttons.dart' as custom;
 import 'package:hourlynotes/presentation/widgets/filter_chip.dart';
 import 'package:hourlynotes/presentation/widgets/date_separator.dart';
 import 'package:hourlynotes/presentation/widgets/activity_card.dart';
+
+import '../domain/controller/note_controller.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -66,45 +67,52 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 final grouped = _groupActivities(activities);
                 final eventsMap = _createEventsMap(activities);
 
-                return SingleChildScrollView(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Search bar
-                      custom.SearchBar(
-                        hintText: 'Search notes...',
-                        controller: _searchController,
-                        onChanged: (value) {
-                          // TODO: filter notes
-                        },
-                      ),
-                      const SizedBox(height: 20),
+                return RefreshIndicator(
+                  onRefresh: () async {
+                    await noteCtrl.syncWithDrive();
+                  },
+                  color: const Color(0xFF00838F),
+                  backgroundColor: Colors.white,
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Search bar
+                        custom.SearchBar(
+                          hintText: 'Search notes...',
+                          controller: _searchController,
+                          onChanged: (value) {
+                            // TODO: filter notes
+                          },
+                        ),
+                        const SizedBox(height: 20),
 
-                      // View mode toggle
-                      custom.ToggleButtons(
-                        options: const ['List', 'Calendar'],
-                        selectedIndex: _viewMode == ViewMode.list ? 0 : 1,
-                        onChanged: (index) {
-                          setState(() {
-                            _viewMode = index == 0 ? ViewMode.list : ViewMode.calendar;
-                            if (_viewMode == ViewMode.calendar) {
-                              _selectedDay = null; // reset on switch
-                            }
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 20),
+                        // View mode toggle
+                        custom.ToggleButtons(
+                          options: const ['List', 'Calendar'],
+                          selectedIndex: _viewMode == ViewMode.list ? 0 : 1,
+                          onChanged: (index) {
+                            setState(() {
+                              _viewMode = index == 0 ? ViewMode.list : ViewMode.calendar;
+                              if (_viewMode == ViewMode.calendar) {
+                                _selectedDay = null; // reset on switch
+                              }
+                            });
+                          },
+                        ),
+                        const SizedBox(height: 20),
 
-                      // Filter chips (still placeholder)
-                      _buildFilterChips(),
-                      const SizedBox(height: 24),
+                        // Filter chips (still placeholder)
+                        _buildFilterChips(),
+                        const SizedBox(height: 24),
 
-                      // Content switch
-                      if (_viewMode == ViewMode.list) _buildActivityTimeline(grouped),
-                      if (_viewMode == ViewMode.calendar)
-                        _buildCalendarView(eventsMap, activities),
-                    ],
+                        // Content switch
+                        if (_viewMode == ViewMode.list) _buildActivityTimeline(grouped),
+                        if (_viewMode == ViewMode.calendar)
+                          _buildCalendarView(eventsMap, activities),
+                      ],
+                    ),
                   ),
                 );
               }),
@@ -400,6 +408,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       String duration = "${(dt.minute % 60 + 15)} min"; // placeholder
 
       return ActivityEntry(
+        note: note,
         id: note.id.toString(),
         category: 'Note',
         categoryColor: 'teal',

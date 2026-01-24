@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -6,8 +5,7 @@ import 'package:get/get.dart';
 
 import 'package:hourlynotes/presentation/home_screen.dart';
 
-import '../data/auth_service.dart';
-import '../data/google_drive_service.dart';
+import '../domain/controller/account_controller.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -17,11 +15,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  bool _isSigningIn = false;
-  final _drive = DriveBackupService();
-  final _auth = AuthService();
-  bool _isSyncing = false;
-  int _restoredCount = 0;
+
+  final AccountController controller = Get.find<AccountController>();
 
 
 
@@ -32,39 +27,10 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> onLogin() async {
-    if(await _auth.isLoggedIn()) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Get.to(const HomeScreen());
-      });
-    }
-  }
-
-  Future<void> _syncFromDrive() async {
-    setState(() => _isSyncing = true);
-
-    try {
-      if (!await _auth.isLoggedIn()) {
-        var googleAcc = await _auth.signIn();
-      }
-
-      if(await _auth.isLoggedIn()) {
-        Get.to(HomeScreen());
-      }
-
-      final restored = await _drive.downloadAndRestoreNotes();
-      setState(() {
-        _restoredCount = restored.length;
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Restored $_restoredCount notes from Drive')),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Sync failed: $e')),
-      );
-    } finally {
-      setState(() => _isSyncing = false);
+    if (await controller.isLoggedIn()) {
+      Get.to(()=> const HomeScreen());
+    } else {
+      await controller.signIn();
     }
   }
 
@@ -84,10 +50,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 style: Theme.of(context).textTheme.displayLarge,
               ),
               const SizedBox(height: 48),
-              _isSigningIn
+              controller.isLoading.value
                   ? const CircularProgressIndicator()
                   : ElevatedButton.icon(
-                      onPressed: _syncFromDrive,
+                      onPressed: controller.signIn,
                       icon: const FaIcon(FontAwesomeIcons.google),
                       label: const Text('Login with Google'),
                       style: ElevatedButton.styleFrom(

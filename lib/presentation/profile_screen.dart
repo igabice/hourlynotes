@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hourlynotes/data/hive_service.dart'; // still needed? only if you use it directly
-import 'package:hourlynotes/presentation/controllers/account_controller.dart';
+import 'package:hourlynotes/data/hive_service.dart';
+import 'package:hourlynotes/presentation/settings_screen.dart';
 import 'package:hourlynotes/presentation/widgets/goal_card.dart';
 import 'package:hourlynotes/presentation/widgets/settings_item.dart';
+
+import '../domain/controller/account_controller.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -158,7 +160,7 @@ class ProfileScreen extends StatelessWidget {
                     const SizedBox(height: 30),
                     _buildAppSettings(),
                     const SizedBox(height: 20),
-                    _buildLogoutButton(controller),
+                    _buildLogoutButton(controller, context),
                     const SizedBox(height: 20),
                   ],
                 ),
@@ -193,21 +195,25 @@ class ProfileScreen extends StatelessWidget {
             ),
           ),
           const Spacer(),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: const Color(0xFFE0F2F1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Text(
-              'Edit',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF00838F),
+          GestureDetector(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: const Color(0xFFE0F2F1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Text(
+                'Edit',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF00838F),
+                ),
               ),
             ),
-          ),
+            onTap: ()=> Get.to(()=> SettingsScreen()),
+          )
+
         ],
       ),
     );
@@ -290,7 +296,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLogoutButton(AccountController controller) {
+  Widget _buildLogoutButton(AccountController controller, BuildContext context) {
     return Container(
       width: double.infinity,
       height: 56,

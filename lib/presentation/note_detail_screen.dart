@@ -1,86 +1,26 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:hourlynotes/domain/models/activity_models.dart';
+import 'package:get/get.dart';
+import 'package:hourlynotes/domain/controller/note_controller.dart';
+import 'package:hourlynotes/domain/note.dart';
+import 'package:hourlynotes/presentation/edit_note_screen.dart';
 import 'package:hourlynotes/presentation/widgets/tag_badge.dart';
 import 'package:hourlynotes/presentation/widgets/info_chip.dart';
 import 'package:intl/intl.dart';
 
 class NoteDetailScreen extends StatelessWidget {
-  final ActivityEntry activity;
+  final Note note;
 
-  const NoteDetailScreen({super.key, required this.activity});
+  const NoteDetailScreen({super.key, required this.note});
 
-  Color get _categoryColor {
-    switch (activity.categoryColor) {
-      case 'teal':
-        return const Color(0xFF00838F);
-      case 'pink':
-        return const Color(0xFFFF6B9D);
-      case 'cyan':
-        return const Color(0xFF00ACC1);
-      default:
-        return const Color(0xFF00838F);
-    }
-  }
-
-  Color get _categoryBgColor {
-    switch (activity.categoryColor) {
-      case 'teal':
-        return const Color(0xFFE0F2F1);
-      case 'pink':
-        return const Color(0xFFFFE4EC);
-      case 'cyan':
-        return const Color(0xFFE0F7FA);
-      default:
-        return const Color(0xFFE0F2F1);
-    }
-  }
+  Color get _categoryColor => const Color(0xFF00838F);
+  Color get _categoryBgColor => const Color(0xFFE0F2F1);
 
   String _getTimeRange() {
-    // Parse the time from activity.time (e.g., "09:00 AM")
-    final startTime = activity.time;
-
-    // Calculate end time based on duration
-    // For now, just use a placeholder - in real app, this would be calculated
-    final durationMatch = RegExp(
-      r'(\d+)\s*(h|m|min)',
-    ).allMatches(activity.duration);
-    int totalMinutes = 0;
-
-    for (var match in durationMatch) {
-      final value = int.parse(match.group(1)!);
-      final unit = match.group(2)!;
-
-      if (unit == 'h') {
-        totalMinutes += value * 60;
-      } else {
-        totalMinutes += value;
-      }
-    }
-
-    // For display purposes, create an end time
-    // In a real app, you'd properly parse and calculate this
-    return '$startTime - ${_addMinutesToTime(startTime, totalMinutes)}';
-  }
-
-  String _addMinutesToTime(String timeStr, int minutes) {
-    // Simple time addition for display
-    // Parse time format like "09:00 AM"
-    final parts = timeStr.split(':');
-    if (parts.length >= 2) {
-      final hourStr = parts[0];
-      final minuteParts = parts[1].split(' ');
-      final minute = int.tryParse(minuteParts[0]) ?? 0;
-      final period = minuteParts.length > 1 ? minuteParts[1] : 'AM';
-      int hour = int.tryParse(hourStr) ?? 9;
-
-      final newMinutes = minute + minutes;
-      final newHour = hour + (newMinutes ~/ 60);
-      final finalMinutes = newMinutes % 60;
-
-      return '${newHour % 12 == 0 ? 12 : newHour % 12}:${finalMinutes.toString().padLeft(2, '0')} $period';
-    }
-
-    return '10:00 AM'; // Fallback
+    final startTime = DateFormat('hh:mm a').format(note.timestamp);
+    final endTime = DateFormat('hh:mm a').format(note.timestamp.add(const Duration(hours: 1)));
+    return '$startTime - $endTime';
   }
 
   @override
@@ -100,7 +40,7 @@ class NoteDetailScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Time range
-                    _buildTimeRange(),
+                    _buildTimeRangeWidget(),
                     const SizedBox(height: 20),
 
                     // Tags
@@ -160,7 +100,7 @@ class NoteDetailScreen extends StatelessWidget {
           // Edit button
           GestureDetector(
             onTap: () {
-              // TODO: Navigate to edit mode
+              Get.to(() => EditNoteScreen(note: note));
             },
             child: const Text(
               'Edit',
@@ -176,7 +116,7 @@ class NoteDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTimeRange() {
+  Widget _buildTimeRangeWidget() {
     return Text(
       _getTimeRange(),
       style: const TextStyle(
@@ -194,16 +134,10 @@ class NoteDetailScreen extends StatelessWidget {
       runSpacing: 10,
       children: [
         TagBadge(
-          label: activity.category,
+          label: 'Note',
           icon: Icons.work_outline_rounded,
           color: _categoryColor,
           backgroundColor: _categoryBgColor,
-        ),
-        const TagBadge(
-          label: 'High Focus',
-          icon: Icons.bolt_rounded,
-          color: Color(0xFFFF6B6B),
-          backgroundColor: Color(0xFFFFE8E8),
         ),
       ],
     );
@@ -211,7 +145,7 @@ class NoteDetailScreen extends StatelessWidget {
 
   Widget _buildCreatedDate() {
     final dateFormat = DateFormat('MMM d, yyyy');
-    final timeAgo = _getTimeAgo(activity.dateTime);
+    final timeAgo = _getTimeAgo(note.timestamp);
 
     return Row(
       children: [
@@ -222,7 +156,7 @@ class NoteDetailScreen extends StatelessWidget {
         ),
         const SizedBox(width: 6),
         Text(
-          'Created $timeAgo • ${dateFormat.format(activity.dateTime)}',
+          'Created $timeAgo • ${dateFormat.format(note.timestamp)}',
           style: const TextStyle(
             fontSize: 13,
             color: Color(0xFF00ACC1),
@@ -265,14 +199,14 @@ class NoteDetailScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Image
-          if (activity.imageUrl != null)
+          if (note.localImagePath != null)
             ClipRRect(
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(20),
                 topRight: Radius.circular(20),
               ),
-              child: Image.network(
-                activity.imageUrl!,
+              child: Image.file(
+                File(note.localImagePath!),
                 width: double.infinity,
                 height: 180,
                 fit: BoxFit.cover,
@@ -300,7 +234,7 @@ class NoteDetailScreen extends StatelessWidget {
               children: [
                 // Title
                 const Text(
-                  'Project Strategy Session',
+                  'Activity Note',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -311,7 +245,7 @@ class NoteDetailScreen extends StatelessWidget {
 
                 // Description
                 Text(
-                  activity.description,
+                  note.text,
                   style: TextStyle(
                     fontSize: 15,
                     color: const Color(0xFF00ACC1).withOpacity(0.8),
@@ -327,11 +261,7 @@ class NoteDetailScreen extends StatelessWidget {
                   children: [
                     InfoChip(
                       icon: Icons.access_time_rounded,
-                      label: 'Duration: ${activity.duration}',
-                    ),
-                    const InfoChip(
-                      icon: Icons.location_on_rounded,
-                      label: 'Main Office',
+                      label: 'Duration: 1 hour',
                     ),
                   ],
                 ),
@@ -349,7 +279,7 @@ class NoteDetailScreen extends StatelessWidget {
       height: 56,
       child: ElevatedButton(
         onPressed: () {
-          // TODO: Navigate to edit screen
+          Get.to(() => EditNoteScreen(note: note));
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF00838F),
@@ -375,12 +305,13 @@ class NoteDetailScreen extends StatelessWidget {
   }
 
   Widget _buildDeleteButton(BuildContext context) {
+    final NoteController noteCtrl = Get.find();
     return SizedBox(
       width: double.infinity,
       height: 56,
       child: OutlinedButton(
         onPressed: () {
-          _showDeleteConfirmation(context);
+          _showDeleteConfirmation(context, noteCtrl);
         },
         style: OutlinedButton.styleFrom(
           foregroundColor: const Color(0xFFFF6B6B),
@@ -405,7 +336,7 @@ class NoteDetailScreen extends StatelessWidget {
     );
   }
 
-  void _showDeleteConfirmation(BuildContext context) {
+  void _showDeleteConfirmation(BuildContext context, NoteController noteCtrl) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -420,7 +351,7 @@ class NoteDetailScreen extends StatelessWidget {
           ),
           TextButton(
             onPressed: () {
-              // TODO: Delete note
+              noteCtrl.deleteNote(note.id);
               Navigator.pop(context); // Close dialog
               Navigator.pop(context); // Go back to history
               ScaffoldMessenger.of(context).showSnackBar(

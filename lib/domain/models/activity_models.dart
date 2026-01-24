@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../note.dart';
+
 /// Model for an activity entry
 class ActivityEntry {
+  final Note note;
   final String id;
   final String category;
   final String categoryColor;
@@ -13,6 +16,7 @@ class ActivityEntry {
   final DateTime dateTime;
 
   ActivityEntry({
+    required this.note,
     required this.id,
     required this.category,
     required this.categoryColor,

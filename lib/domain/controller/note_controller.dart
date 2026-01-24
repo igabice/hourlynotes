@@ -3,31 +3,32 @@ import 'dart:typed_data';
 
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:hourlynotes/domain/note.dart';           // your Note model (update to include lastModified)
-import 'package:hourlynotes/data/drive_backup_service.dart'; // the service you provided
+import 'package:hourlynotes/domain/note.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
-import 'package:workmanager/workmanager.dart'; // add this package: flutter pub add workmanager
+import 'package:workmanager/workmanager.dart';
+
+import '../../data/google_drive_service.dart';
 
 // Background task name
 const String syncTaskName = 'note-sync-background';
 
-@pragma('vm:entry-point')
-void callbackDispatcher() {
-  Workmanager().executeTask((taskName, inputData) async {
-    // Init Hive (need to initFlutter for background)
-    await Hive.initFlutter();
-    Hive.registerAdapter(NoteAdapter()); // assuming you have the adapter
-
-    final ctrl = NoteController(); // create temp instance for background
-    await ctrl._initHive();
-    await ctrl._loadNotesFromLocal();
-    await ctrl.syncAllNotesToDrive(); // upload local to Drive
-    await ctrl.restoreFromDrive();    // download & resolve conflicts
-
-    return Future.value(true);
-  });
-}
+// @pragma('vm:entry-point')
+// void callbackDispatcher() {
+//   Workmanager().executeTask((taskName, inputData) async {
+//     // Init Hive (need to initFlutter for background)
+//     await Hive.initFlutter();
+//     Hive.registerAdapter(NoteAdapter()); // assuming you have the adapter
+//
+//     final ctrl = NoteController(); // create temp instance for background
+//     await ctrl._initHive();
+//     await ctrl._loadNotesFromLocal();
+//     await ctrl.syncAllNotesToDrive(); // upload local to Drive
+//     await ctrl.restoreFromDrive();    // download & resolve conflicts
+//
+//     return Future.value(true);
+//   });
+// }
 
 class NoteController extends GetxController {
   // ── Reactive state ───────────────────────────────────────────────────────────
@@ -47,7 +48,7 @@ class NoteController extends GetxController {
     super.onInit();
     await _initHive();
     await _loadNotesFromLocal();
-    _setupBackgroundSync();
+    // _setupBackgroundSync();
     // Optional: initial sync
     _syncWithDrive();
   }
@@ -199,10 +200,10 @@ class NoteController extends GetxController {
           await saveNote(remote, syncNow: false);
         } else {
           // Conflict: compare lastModified (assume Note has this field now)
-          if (remote.lastModified.isAfter(local.lastModified)) {
+          if (remote.lastModified!.isAfter(local.lastModified!)) {
             // Remote newer → overwrite local
             await saveNote(remote, syncNow: false);
-          } else if (local.lastModified.isAfter(remote.lastModified)) {
+          } else if (local.lastModified!.isAfter(remote.lastModified!)) {
             // Local newer → upload local to Drive
             await _syncNoteToDrive(local);
           } else {
@@ -231,6 +232,11 @@ class NoteController extends GetxController {
     await restoreFromDrive();
   }
 
+  /// Public method for manual sync (used by pull-to-refresh)
+  Future<void> syncWithDrive() async {
+    await _syncWithDrive();
+  }
+
   /// Delete note from both local and Drive
   Future<void> _deleteNoteFromDrive(int noteId) async {
     try {
@@ -243,7 +249,7 @@ class NoteController extends GetxController {
   }
 
   // ── Background Sync Setup ───────────────────────────────────────────────────
-
+/*
   void _setupBackgroundSync() {
     Workmanager().initialize(
       callbackDispatcher,
@@ -260,10 +266,11 @@ class NoteController extends GetxController {
         requiresBatteryNotLow: true,
         requiresStorageNotLow: true,
       ),
-      existingWorkPolicy: ExistingWorkPolicy.keep,
+      existingWorkPolicy: ExistingPeriodicWorkPolicy.keep,
     );
   }
 
+*/
   // ── Helpers ─────────────────────────────────────────────────────────────────
 
   Future<void> clearAllLocalNotes() async {

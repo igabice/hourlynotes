@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
-import 'package:domain/controller/add_note_controller.dart'; // adjust path
+import '../domain/controller/add_note_controller.dart';
 
 class AddNoteScreen extends StatelessWidget {
   const AddNoteScreen({super.key});
@@ -141,40 +141,46 @@ class AddNoteScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 20),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              timeFormat.format(ctrl.startTime.value!),
-              style: const TextStyle(
-                fontSize: 52,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1A1A1A),
-                height: 1.0,
-              ),
-            ),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 12),
-              child: Text(
-                '—',
-                style: TextStyle(
-                  fontSize: 40,
-                  fontWeight: FontWeight.w300,
-                  color: Color(0xFF00838F),
+        if (ctrl.startTime.value == null || ctrl.endTime.value == null)
+          const SizedBox(
+            height: 60,
+            child: Center(child: CircularProgressIndicator()),
+          )
+        else
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                timeFormat.format(ctrl.startTime.value!),
+                style: const TextStyle(
+                  fontSize: 52,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1A1A1A),
+                  height: 1.0,
                 ),
               ),
-            ),
-            Text(
-              timeFormat.format(ctrl.endTime.value!),
-              style: const TextStyle(
-                fontSize: 52,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1A1A1A),
-                height: 1.0,
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 12),
+                child: Text(
+                  '—',
+                  style: TextStyle(
+                    fontSize: 40,
+                    fontWeight: FontWeight.w300,
+                    color: Color(0xFF00838F),
+                  ),
+                ),
               ),
-            ),
-          ],
-        ),
+              Text(
+                timeFormat.format(ctrl.endTime.value!),
+                style: const TextStyle(
+                  fontSize: 52,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1A1A1A),
+                  height: 1.0,
+                ),
+              ),
+            ],
+          ),
         const SizedBox(height: 16),
         const Text(
           "What's happening right now?",
@@ -233,31 +239,29 @@ class AddNoteScreen extends StatelessWidget {
           ),
           child: Column(
             children: [
-              Obx(
-                () => TextField(
-                  onChanged: (value) => ctrl.noteText.value = value,
-                  maxLines: 8,
-                  decoration: InputDecoration(
-                    hintText:
-                        'I am focusing on completing the UI prototypes for the new project...',
-                    hintStyle: TextStyle(
-                      color: const Color(0xFF00ACC1).withOpacity(0.4),
-                      fontSize: 16,
-                      height: 1.5,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20),
-                      borderSide: BorderSide.none,
-                    ),
-                    contentPadding: const EdgeInsets.all(20),
-                    filled: true,
-                    fillColor: Colors.white,
-                  ),
-                  style: const TextStyle(
+              TextField(
+                onChanged: (value) => ctrl.noteText.value = value,
+                maxLines: 8,
+                decoration: InputDecoration(
+                  hintText:
+                      'I am focusing on completing the UI prototypes for the new project...',
+                  hintStyle: TextStyle(
+                    color: const Color(0xFF00ACC1).withOpacity(0.4),
                     fontSize: 16,
-                    color: Color(0xFF1A1A1A),
                     height: 1.5,
                   ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.all(20),
+                  filled: true,
+                  fillColor: Colors.white,
+                ),
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: Color(0xFF1A1A1A),
+                  height: 1.5,
                 ),
               ),
               Padding(
@@ -520,7 +524,7 @@ class AddNoteScreen extends StatelessWidget {
               ),
             ),
             child: const Text(
-              'Save Activity Log',
+              'Save Note',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ),

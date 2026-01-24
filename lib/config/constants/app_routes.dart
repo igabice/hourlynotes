@@ -11,8 +11,8 @@ abstract class AppPages {
 
 abstract class AppRoutes {
   static Future<String> get initialRoute async {
-    int count = Get.find<AccountController>().onboardCount;
-    return count == 0 ? ONBOARD : INITIAL;
+    return Get.find<AccountController>().isFirstRun.value ? ONBOARD : INITIAL;
+
   }
 
   static const ALL_CHAT = '/note-detail';

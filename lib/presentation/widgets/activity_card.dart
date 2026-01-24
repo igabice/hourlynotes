@@ -1,6 +1,11 @@
+import 'dart:io';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:hourlynotes/domain/models/activity_models.dart';
+import 'package:hourlynotes/domain/note.dart';
 import 'package:hourlynotes/presentation/note_detail_screen.dart';
+
+import '../../domain/models/activity_models.dart';
 
 /// Activity card widget for displaying activity entries
 class ActivityCard extends StatelessWidget {
@@ -63,7 +68,7 @@ class ActivityCard extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => NoteDetailScreen(activity: activity),
+                    builder: (context) => NoteDetailScreen(note: activity.note),
                   ),
                 );
               },
